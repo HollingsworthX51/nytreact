@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 //imports
 mongoose.Promise = Promise;
 const PORT = process.env.PORT || 3000;
-const article = require("./models/Articles.js");
+const article = require("./models/articles.js");
 const controller = require("./controllers/controllers.js");
 
 const app = express();
