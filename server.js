@@ -1,89 +1,32 @@
 
-//dependencies
+// dependencies
 const express = require("express");
 const bodyParser = require("body-parser");
-const logger = require("morgan");
 const mongoose = require("mongoose");
-
-//imports
-mongoose.Promise = Promise;
-const PORT = process.env.PORT || 3000;
-const article = require("./models/articles.js");
-const controller = require("./controllers/controllers.js");
-
+const routes = require("./routes");
+// express
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-app.use(logger("dev"));
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
+// Configure body parser for AJAX requests
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+// Serve up static assets
+app.use(express.static("client/build"));
+// Add routes, both API and view
+app.use(routes);
 
-app.use(express.static("./public"));
+// Set up promises with mongoose
+mongoose.Promise = global.Promise;
+// Connect to the Mongo DB
+mongoose.connect(
+  process.env.MONGODB_URI || "mongodb://localhost/nytreact",
+  {
+    useMongoClient: true
+  }
+);
 
-mongoose.connect("mongodb://localhost/nytreact");
-const db = mongoose.connection;
-
-//Error message - mongoose connection 
-db.on("error", function(error) {
-  console.log("Mongoose Error: ", error);
-});
-
-// Success message - mongoose connection
-db.once("open", function() {
-  console.log("Mongoose connection successful!");
-});
-
-// React
-app.get("/", function(req, res) {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
-
-
-//get route
-app.get("/api/saved", function(req, res) {
-  Article.find({})
-    .exec(function(err, doc){
-
-      if(err){
-        console.log(err);
-      }
-      else {
-        res.send(doc);
-      }
-    })
-});
-
-//post
-app.post("/api/saved", function(req, res) {
-
-  const newArticle = new Article({
-    title: req.body.title,
-    date: req.body.date,
-    url: req.body.url
-  });
-
-//save
-newArticle.save(function(err, doc){
-    if(err){
-      console.log(err);
-      res.send(err);
-    } else {
-      res.json(doc);
-    }
-  });
-});
-
-
-//delete
-app.delete('/api/saved/:id', function(req, res){
-
-  Article.find({'_id': req.params.id}).remove()
-    .exec(function(err, doc) {
-      res.send(doc);
-  });
-
-});
-
+// Start the API server
 app.listen(PORT, function() {
-  console.log("App running on port 3000!");
+  console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);
 });
