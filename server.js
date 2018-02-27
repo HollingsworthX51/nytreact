@@ -19,12 +19,20 @@ app.use(routes);
 // Set up promises with mongoose
 mongoose.Promise = global.Promise;
 // Connect to the Mongo DB
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost/nytreact",
-  {
-    useMongoClient: true
-  }
-);
+//mongoose.connect(
+  //process.env.MONGODB_URI || "mongodb://localhost/nytreact",
+  //{
+    //useMongoClient: true
+  //}
+//);
+
+if(process.env.NODE_ENV == 'production'){
+	mongoose.connect('mongodb://heroku_l4lvcz4d:543klnr053gfu9sl2v919tons2@ds019866.mlab.com:19866/heroku_l4lvcz4d');
+}
+else{
+	mongoose.connect("mongodb://localhost/reactroute");
+}
+
 
 // Start the API server
 app.listen(PORT, function() {
